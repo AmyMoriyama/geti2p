@@ -1,0 +1,47 @@
+#!/bin/bash
+#
+# Simple script to fetch Java and I2P and extract them.
+#
+# Version 1
+
+# variables
+var1="https://javadl.oracle.com/webapps/download/AutoDL?BundleId=245797_df5ad55fdd604472a86a45a217032c7d"
+var2=$(curl -s "https://geti2p.net/en/download" | grep ".jar/download" | cut -c 32- | rev | cut -c 3- | rev)
+var3=$(curl -s "https://geti2p.net$var2" | grep "meta http-equiv=\"refresh\"" | cut -c 43- | rev | cut -c 5- | rev)
+
+# get and prep jre
+wget -q "$var1" -O jre.tar.gz
+tar -xf jre.tar.gz
+rm jre.tar.gz
+ls | grep "jre" > jre-version
+var4=$(head -n 1 jre-version)
+
+# get and prep firefox with i2p firefox profile
+wget -q "https://i2pgit.org/i2p-hackers/i2p.firefox/-/archive/master/i2p.firefox-master.tar.gz?path=src/profile" -O profile.tar.gz
+tar -xf profile.tar.gz
+rm profile.tar.gz
+wget -q "https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US" -O firefox.tar.bz2
+tar -xf firefox.tar.bz2
+rm firefox.tar.bz2
+mv i2p.firefox-master-src-profile/src/profile firefox/
+rm -rf i2p.firefox-master-src-profile
+echo '#!/bin/bash' > startfirefox
+echo "./firefox/firefox -profile ./firefox/profile -no-remote" >> startfirefox
+chmod +x startfirefox
+
+
+# get and prep i2p
+wget -q "$var3"
+ls | grep "i2p" > i2p-version
+var6=$(head -n 1 i2p-version)
+while read file; do ./$var4/bin/java -jar ./$var6 -console; done < .args >> /dev/null 2>&1
+rm $var6
+echo '#!/bin/bash' > starti2p
+echo "./$var4/bin/java -jar ./i2p/i2prouter start" >> starti2p
+chmod +x starti2p
+
+# misc cleanup
+mkdir -p info
+mv jre-version info
+mv i2p-version info
+
