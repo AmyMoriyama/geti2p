@@ -6,4 +6,10 @@ Privacy Respecting Browser Startpage: https://historya.live/start/
 
 This project is being redone so features will be limited and subject to change.
 
+At present, this script simply fetches the latest Java I2P and extracts it to
+a folder named i2p/
 
+How to use:
+* git clone the repo
+* make the script able to be executed
+* Run fetch-i2p.sh
